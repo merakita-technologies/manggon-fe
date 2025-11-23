@@ -1,19 +1,34 @@
-import * as React from "react"
+// hooks/use-mobile.ts
+import { useState, useEffect } from 'react'
 
-const MOBILE_BREAKPOINT = 768
+export function useMobile(): boolean {
+  const [isMobile, setIsMobile] = useState<boolean>(false)
+  const [isClient, setIsClient] = useState<boolean>(false)
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
-
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+  useEffect(() => {
+    setIsClient(true)
+    
+    const checkMobile = (): void => {
+      setIsMobile(window.innerWidth < 768)
     }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+
+    return (): void => {
+      window.removeEventListener('resize', checkMobile)
+    }
   }, [])
 
-  return !!isMobile
+  return isMobile && isClient
+}
+
+export function useClient(): boolean {
+  const [isClient, setIsClient] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  return isClient
 }
